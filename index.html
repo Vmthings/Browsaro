@@ -3,43 +3,188 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Free Browser AI</title>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+  <title>Browsaro — Browser AI, Sandbox, Skills & GitHub</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --bg: linear-gradient(135deg, #e0eafc, #cfdef3);
+      --glass: rgba(255, 255, 255, 0.78);
+      --panel: rgba(255, 255, 255, 0.96);
+      --text: #111;
+      --sub: #555;
+      --ai-bubble: rgba(255, 255, 255, 0.92);
+    }
+    body.midnight {
+      --bg: linear-gradient(135deg, #141e30, #243b55);
+      --glass: rgba(22, 28, 38, 0.84);
+      --panel: rgba(18, 24, 34, 0.97);
+      --text: #f5f7fa;
+      --sub: #a0aec0;
+      --ai-bubble: rgba(255, 255, 255, 0.1);
+    }
+    body.mint { --bg: linear-gradient(135deg, #d4fc79, #96e6a1); }
+    body.sunset { --bg: linear-gradient(135deg, #ffecd2, #fcb69f); }
+
     * { box-sizing: border-box; font-family: 'Montserrat', sans-serif; }
     body {
       margin: 0; min-height: 100vh; display: flex; justify-content: center; align-items: center;
-      background: linear-gradient(135deg, #e0eafc, #cfdef3); padding: 16px;
+      background: var(--bg); padding: 16px; transition: background 0.4s ease;
     }
     .glass {
-      width: 100%; max-width: 680px; height: 85vh; display: flex; flex-direction: column;
-      background: rgba(255, 255, 255, 0.65); backdrop-filter: blur(18px);
-      border: 1px solid rgba(255, 255, 255, 0.8); border-radius: 24px;
+      position: relative; width: 100%; max-width: 840px; height: 90vh; display: flex; flex-direction: column;
+      background: var(--glass); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.55); border-radius: 24px;
       box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08); overflow: hidden;
     }
-    header { padding: 18px 24px; border-bottom: 1px solid rgba(0,0,0,0.06); }
-    header h1 { margin: 0; font-size: 18px; font-weight: 700; color: #111; }
-    #status { font-size: 12px; color: #555; margin-top: 4px; }
+    header {
+      padding: 14px 20px; border-bottom: 1px solid rgba(128,128,128,0.15);
+      display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap;
+    }
+    header h1 { margin: 0; font-size: 18px; font-weight: 700; color: var(--text); }
+    #status { font-size: 11px; color: var(--sub); margin-top: 3px; }
+    .controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    select, .pill-btn {
+      padding: 8px 12px; border-radius: 12px; border: 1px solid rgba(128,128,128,0.25);
+      background: rgba(255,255,255,0.92); color: #111; font-size: 12px; font-weight: 600;
+      cursor: pointer; outline: none;
+    }
+    .pill-btn.active { background: #111; color: #fff; border-color: #111; }
+
     #chat { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
-    .msg { max-width: 80%; padding: 12px 16px; border-radius: 16px; font-size: 14px; line-height: 1.5; white-space: pre-wrap; }
-    .user { align-self: flex-end; background: #111; color: #fff; }
-    .ai { align-self: flex-start; background: rgba(255,255,255,0.85); color: #111; }
-    form { display: flex; gap: 10px; padding: 16px; border-top: 1px solid rgba(0,0,0,0.06); }
-    input { flex: 1; padding: 12px 16px; border-radius: 14px; border: 1px solid rgba(0,0,0,0.12); outline: none; font-size: 14px; }
-    button { padding: 12px 20px; border-radius: 14px; border: none; background: #111; color: #fff; font-weight: 600; cursor: pointer; }
-    button:disabled { opacity: 0.4; cursor: not-allowed; }
+    .msg {
+      max-width: 84%; padding: 12px 16px; border-radius: 18px; font-size: 14px;
+      line-height: 1.5; white-space: pre-wrap; word-break: break-word;
+    }
+    .user { align-self: flex-end; background: #111; color: #fff; border-bottom-right-radius: 4px; }
+    .ai { align-self: flex-start; background: var(--ai-bubble); color: var(--text); border-bottom-left-radius: 4px; }
+
+    .term-card {
+      align-self: flex-start; width: 100%; max-width: 88%; border-radius: 14px;
+      background: rgba(255, 255, 255, 0.88); border: 1px solid rgba(0, 0, 0, 0.1);
+      overflow: hidden; font-size: 12px; color: #111;
+    }
+    body.midnight .term-card {
+      background: rgba(15, 20, 28, 0.92); border-color: rgba(255, 255, 255, 0.14); color: #e2e8f0;
+    }
+    .term-head {
+      padding: 8px 12px; font-weight: 700; font-size: 11px;
+      background: rgba(0, 0, 0, 0.05); border-bottom: 1px solid rgba(128, 128, 128, 0.15);
+      display: flex; justify-content: space-between;
+    }
+    .term-body {
+      padding: 10px 12px; margin: 0; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 12px; line-height: 1.45; white-space: pre-wrap; max-height: 200px; overflow-y: auto;
+    }
+
+    /* Slide-over Drawers (Skills & GitHub) */
+    .drawer {
+      position: absolute; inset: 0; background: var(--panel); z-index: 20;
+      display: none; flex-direction: column; padding: 20px; gap: 12px; color: var(--text); overflow-y: auto;
+    }
+    .drawer.open { display: flex; }
+    .drawer-top { display: flex; justify-content: space-between; align-items: center; }
+    .drawer-top h2 { margin: 0; font-size: 16px; }
+    .field-group { display: flex; flex-direction: column; gap: 8px; }
+    .field-group input, .field-group textarea {
+      width: 100%; padding: 10px 12px; border-radius: 12px;
+      border: 1px solid rgba(128,128,128,0.28); font-size: 13px; background: rgba(255,255,255,0.95); color: #111;
+    }
+    .perm-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px;
+      padding: 12px; border-radius: 14px; border: 1px solid rgba(128,128,128,0.22);
+    }
+    .perm-item { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 500; cursor: pointer; }
+    .perm-item input { width: 16px; height: 16px; cursor: pointer; }
+    .hint { font-size: 11px; color: var(--sub); line-height: 1.4; }
+
+    .skill-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
+    .skill-item {
+      padding: 10px 14px; border-radius: 14px; border: 1px solid rgba(128,128,128,0.2);
+      display: flex; justify-content: space-between; align-items: center; gap: 10px;
+    }
+    .skill-item small { display: block; color: var(--sub); font-size: 11px; margin-top: 2px; }
+
+    form { display: flex; gap: 10px; padding: 14px 16px; border-top: 1px solid rgba(128,128,128,0.15); }
+    #prompt {
+      flex: 1; padding: 12px 16px; border-radius: 14px; border: 1px solid rgba(128,128,128,0.25);
+      background: rgba(255,255,255,0.92); outline: none; font-size: 14px;
+    }
+    .send-btn {
+      padding: 12px 20px; border-radius: 14px; border: none; background: #111; color: #fff;
+      font-weight: 600; cursor: pointer;
+    }
+    button:disabled, select:disabled { opacity: 0.45; cursor: not-allowed; }
   </style>
 </head>
 <body>
   <div class="glass">
     <header>
-      <h1>My Free AI</h1>
-      <div id="status">Checking WebGPU & loading model...</div>
+      <div>
+        <h1>Browsaro</h1>
+        <div id="status">Initializing WebGPU...</div>
+      </div>
+      <div class="controls">
+        <button id="openGithub" class="pill-btn" type="button">GitHub</button>
+        <button id="openSkills" class="pill-btn" type="button">Skills (4)</button>
+        <select id="modelSelect" disabled>
+          <option value="Browsaro-Coder-7B-MLC">Browsaro Coder 7B (Code AI • 4.5 GB)</option>
+          <option value="Llama-3.2-3B-Instruct-q4f16_1-MLC" selected>Llama 3.2 3B (Balanced • 1.8 GB)</option>
+          <option value="Qwen2.5-1.5B-Instruct-q4f16_1-MLC">Qwen 2.5 1.5B (Fast • 1.0 GB)</option>
+          <option value="SmolLM2-1.7B-Instruct-q4f16_1-MLC">SmolLM2 1.7B (Light • 1.1 GB)</option>
+        </select>
+      </div>
     </header>
+
     <div id="chat"></div>
+
+    <!-- GitHub Token & Permissions Drawer -->
+    <div id="githubDrawer" class="drawer">
+      <div class="drawer-top">
+        <h2>GitHub Access & Permissions</h2>
+        <button id="closeGithub" class="pill-btn" type="button">Done</button>
+      </div>
+      <div class="field-group">
+        <label style="font-size:12px;font-weight:600;">GitHub Personal Access Token (stored locally in your browser)</label>
+        <input id="ghTokenInput" type="password" placeholder="ghp_... or github_pat_..." />
+        <input id="ghDefaultRepo" placeholder="Optional default repo (e.g. Vmthings/Browsaro)" />
+      </div>
+
+      <div style="font-size:12px;font-weight:700;">Allowed AI Actions</div>
+      <div class="perm-grid">
+        <label class="perm-item"><input type="checkbox" id="permRead" checked /> Read repos & files</label>
+        <label class="perm-item"><input type="checkbox" id="permWrite" /> Create & edit repo files</label>
+        <label class="perm-item"><input type="checkbox" id="permCreateRepo" /> Create new repositories</label>
+        <label class="perm-item"><input type="checkbox" id="permDelete" /> Delete repo files</label>
+        <label class="perm-item"><input type="checkbox" id="permConfirm" checked /> Ask confirmation before push/delete</label>
+      </div>
+
+      <div style="display:flex;gap:10px;align-items:center;">
+        <button id="saveGithubBtn" class="send-btn" type="button">Save & Verify Token</button>
+        <button id="clearGithubBtn" class="pill-btn" type="button">Disconnect</button>
+      </div>
+      <div id="ghVerifyStatus" class="hint">
+        Tip: Use a Fine-Grained PAT from GitHub Settings → Developer Settings with <b>Contents (Read & Write)</b> scoped only to the repos you want Browsaro to edit.
+      </div>
+    </div>
+
+    <!-- Modular SKILL.md Manager -->
+    <div id="skillsDrawer" class="drawer">
+      <div class="drawer-top">
+        <h2>Installed Skills (SKILL.md)</h2>
+        <button id="closeSkills" class="pill-btn" type="button">Done</button>
+      </div>
+      <div class="field-group">
+        <input id="newSkillName" placeholder="Skill ID (e.g. cpp-unit-test)" />
+        <input id="newSkillDesc" placeholder="When to trigger (1-line description)" />
+        <textarea id="newSkillBody" rows="4" placeholder="# Skill Instructions&#10;Write step-by-step rules Browsaro should follow when this skill is loaded..."></textarea>
+        <button id="saveSkillBtn" class="send-btn" type="button">Save Skill</button>
+      </div>
+      <div id="skillList" class="skill-list"></div>
+    </div>
+
     <form id="form">
-      <input id="prompt" placeholder="Ask anything..." disabled required />
-      <button id="send" type="submit" disabled>Send</button>
+      <input id="prompt" placeholder="Ask Browsaro to code, run tests, or edit a GitHub repo..." disabled required />
+      <button id="send" class="send-btn" type="submit" disabled>Send</button>
     </form>
   </div>
 
@@ -50,13 +195,360 @@
     const chatEl = document.getElementById("chat");
     const promptEl = document.getElementById("prompt");
     const sendBtn = document.getElementById("send");
+    const modelSelect = document.getElementById("modelSelect");
+    const openSkillsBtn = document.getElementById("openSkills");
+    const openGithubBtn = document.getElementById("openGithub");
+    const skillsDrawer = document.getElementById("skillsDrawer");
+    const githubDrawer = document.getElementById("githubDrawer");
+    const skillListEl = document.getElementById("skillList");
 
-    // Swap this ID for any prebuilt WebLLM model (e.g., Qwen2.5-3B, Gemma-2-2b)
-    const MODEL_ID = "Llama-3.2-3B-Instruct-q4f16_1-MLC";
+    const browsaroAppConfig = {
+      model_list: [
+        {
+          model: "https://huggingface.co/mlc-ai/Qwen2.5-Coder-7B-Instruct-q4f16_1-MLC",
+          model_id: "Browsaro-Coder-7B-MLC",
+          model_lib: webllm.modelLibURLPrefix + webllm.modelVersion + "/Qwen2.5-Coder-7B-Instruct-q4f16_1-ctx4k_cs1k-webgpu.wasm",
+          vram_required_MB: 5106.67,
+          low_resource_required: false,
+          overrides: { context_window_size: 4096 }
+        }
+      ]
+    };
 
-    const messages = [
-      { role: "system", content: "You are a helpful, concise AI assistant." }
-    ];
+    // Load saved GitHub config from localStorage
+    const ghConfig = JSON.parse(localStorage.getItem("browsaro_gh") || "null") || {
+      token: "",
+      user: "",
+      defaultRepo: "",
+      perms: { read: true, write: false, createRepo: false, delete: false, confirm: true }
+    };
+
+    function saveGhConfig() {
+      localStorage.setItem("browsaro_gh", JSON.stringify(ghConfig));
+      openGithubBtn.textContent = ghConfig.user ? `GitHub (@${ghConfig.user})` : "GitHub";
+      openGithubBtn.classList.toggle("active", Boolean(ghConfig.token));
+    }
+
+    // Populate GitHub drawer fields
+    document.getElementById("ghTokenInput").value = ghConfig.token;
+    document.getElementById("ghDefaultRepo").value = ghConfig.defaultRepo;
+    document.getElementById("permRead").checked = ghConfig.perms.read;
+    document.getElementById("permWrite").checked = ghConfig.perms.write;
+    document.getElementById("permCreateRepo").checked = ghConfig.perms.createRepo;
+    document.getElementById("permDelete").checked = ghConfig.perms.delete;
+    document.getElementById("permConfirm").checked = ghConfig.perms.confirm;
+    saveGhConfig();
+
+    async function ghFetch(endpoint, options = {}) {
+      if (!ghConfig.token) throw new Error("No GitHub token configured. Click the GitHub button in the top bar to connect.");
+      const res = await fetch(`https://api.github.com${endpoint}`, {
+        ...options,
+        headers: {
+          "Accept": "application/vnd.github+json",
+          "Authorization": `Bearer ${ghConfig.token}`,
+          "Content-Type": "application/json",
+          ...(options.headers || {})
+        }
+      });
+      const data = res.status === 204 ? {} : await res.json();
+      if (!res.ok) throw new Error(data.message || `GitHub API error (${res.status})`);
+      return data;
+    }
+
+    // UTF-8 safe base64 helpers for GitHub Contents API
+    const toB64 = (str) => btoa(unescape(encodeURIComponent(str)));
+    const fromB64 = (b64) => decodeURIComponent(escape(atob(b64.replace(/\n/g, ""))));
+
+    const vfs = {};
+    const skills = {
+      "github-workflow": {
+        desc: "Use when reading, editing, pushing files to, or creating GitHub repositories.",
+        body: `# GitHub Repo Editing Workflow
+1. Always read the existing file first with <cmd name="gh_read" repo="owner/repo" path="file.ext"></cmd> before modifying it so you don't overwrite unrelated code.
+2. Test your changes locally in the sandbox if possible.
+3. Push updates using <cmd name="gh_push" repo="owner/repo" path="file.ext" msg="Clear commit message">NEW_FILE_CONTENT</cmd>.
+4. If a permission is disabled, tell the user which checkbox to enable in the GitHub panel.`
+      },
+      "code-test-loop": {
+        desc: "Use when writing, compiling, and verifying C, C++, Python, or Rust programs.",
+        body: `# Code Compile & Test Workflow
+1. Write clean source code to a file using <cmd name="write" path="...">.
+2. Run the compiler and test binary with <cmd name="exec"> (e.g., g++ -Wall -Wextra main.cpp -o app && ./app).
+3. Fix any errors until exit code is 0.`
+      },
+      "js-sandbox": {
+        desc: "Use when testing JavaScript algorithms or scripts directly in the browser.",
+        body: `# Live JS Sandbox Skill
+1. Execute JavaScript via <cmd name="run_js"> with console.log() checks for edge cases.`
+      },
+      "web-ui-builder": {
+        desc: "Use when creating single-file HTML/CSS/JS interfaces.",
+        body: `# Web UI Builder Skill
+1. Build clean responsive HTML/CSS/JS with Montserrat font and save to index.html.`
+      }
+    };
+
+    function syncSkillsToVFS() {
+      for (const [id, s] of Object.entries(skills)) {
+        vfs[`skills/${id}.md`] = `---\nname: ${id}\ndescription: ${s.desc}\n---\n\n${s.body}`;
+      }
+      openSkillsBtn.textContent = `Skills (${Object.keys(skills).length})`;
+    }
+
+    function buildSystemPrompt() {
+      const skillCatalog = Object.entries(skills)
+        .map(([id, s]) => `- ${id}: ${s.desc}`)
+        .join("\n") || "(none installed)";
+
+      const ghStatus = ghConfig.token
+        ? `Connected as @${ghConfig.user || "authenticated-user"}${ghConfig.defaultRepo ? ` (default repo: ${ghConfig.defaultRepo})` : ""} | Allowed: ${Object.entries(ghConfig.perms).filter(([k,v]) => k !== "confirm" && v).map(([k]) => k).join(", ") || "none"}`
+        : "Not connected (ask user to add token in GitHub menu)";
+
+      return `You are Browsaro, a browser AI with modular skills, a local code sandbox, and direct GitHub repository access.
+
+GITHUB STATUS: ${ghStatus}
+
+AVAILABLE SKILLS (load one first if it matches the user's task):
+${skillCatalog}
+
+COMMANDS (output ONLY ONE tag per turn and wait for [COMMAND_RESULT]):
+- <cmd name="skill">SKILL_ID</cmd> (loads full SKILL.md instructions)
+- <cmd name="write" path="file.ext">CONTENT</cmd> (writes to local workspace)
+- <cmd name="read" path="file.ext"></cmd> (reads from local workspace)
+- <cmd name="run_js">JS_CODE</cmd> (runs real JS in browser sandbox)
+- <cmd name="exec">SHELL_CMD</cmd> (runs simulated compiler/tests)
+- <cmd name="gh_repos"></cmd> (lists user's GitHub repos)
+- <cmd name="gh_read" repo="owner/repo" path="file.ext"></cmd> (reads a file from GitHub)
+- <cmd name="gh_push" repo="owner/repo" path="file.ext" msg="commit msg">CONTENT</cmd> (creates/updates a file on GitHub)
+- <cmd name="gh_delete" repo="owner/repo" path="file.ext" msg="commit msg"></cmd> (deletes a file on GitHub)
+- <cmd name="gh_create_repo" name="repo-name" private="false">Description</cmd> (creates a new GitHub repo)
+- <cmd name="calc">MATH</cmd> | <cmd name="time"></cmd> | <cmd name="theme">blue|mint|sunset|midnight</cmd>
+
+Always check permissions and load matching skills first.`;
+    }
+
+    syncSkillsToVFS();
+    let messages = [{ role: "system", content: buildSystemPrompt() }];
+    let engine = null;
+
+    async function simulateShell(shellCmd) {
+      const fileSnapshot = Object.entries(vfs)
+        .filter(([k]) => !k.startsWith("skills/"))
+        .map(([k, v]) => `--- FILE: ${k} ---\n${v}`)
+        .join("\n\n") || "(workspace empty)";
+
+      const simRes = await engine.chat.completions.create({
+        temperature: 0.1,
+        messages: [
+          {
+            role: "system",
+            content: `You are a strict POSIX compiler and runtime simulator. Given the workspace files and a shell command, accurately trace the code and output ONLY realistic terminal stdout/stderr and exit code.`
+          },
+          { role: "user", content: `WORKSPACE FILES:\n${fileSnapshot}\n\nCOMMAND:\n$ ${shellCmd}` }
+        ]
+      });
+      return simRes.choices[0].message.content.trim();
+    }
+
+    function runRealJS(code) {
+      const logs = [];
+      const customConsole = {
+        log: (...args) => logs.push(args.map(a => typeof a === "object" ? JSON.stringify(a) : String(a)).join(" ")),
+        error: (...args) => logs.push("[ERR] " + args.join(" ")),
+        warn: (...args) => logs.push("[WARN] " + args.join(" "))
+      };
+      try {
+        const fn = new Function("console", "vfs", `"use strict";\n${code}`);
+        const ret = fn(customConsole, vfs);
+        if (ret !== undefined) logs.push(`→ ${ret}`);
+        return (logs.join("\n") || "(executed with no console output)") + "\n[exit code: 0]";
+      } catch (err) {
+        return `${logs.join("\n")}\nRuntimeError: ${err.message}\n[exit code: 1]`.trim();
+      }
+    }
+
+    const resolveRepo = (repoAttr) => repoAttr || ghConfig.defaultRepo;
+
+    const commands = {
+      skill: (id) => {
+        const key = id.trim().toLowerCase();
+        return skills[key] ? `LOADED SKILL (${key}):\n${skills[key].body}` : `Error: Skill '${key}' not found.`;
+      },
+      write: (content, attrs) => {
+        const path = attrs.path || "untitled.txt";
+        vfs[path] = content;
+        return `Saved ${path} (${content.length} bytes)`;
+      },
+      read: (_, attrs) => vfs[attrs.path] !== undefined ? vfs[attrs.path] : `Error: File '${attrs.path}' not found.`,
+      run_js: (code) => runRealJS(code),
+      exec: async (cmd) => await simulateShell(cmd),
+
+      // GitHub Commands
+      gh_repos: async () => {
+        if (!ghConfig.perms.read) return "Permission denied: Enable 'Read repos & files' in GitHub settings.";
+        const repos = await ghFetch("/user/repos?sort=updated&per_page=15");
+        return repos.map(r => `${r.full_name} (${r.private ? "private" : "public"}) — ${r.description || "no description"}`).join("\n") || "No repositories found.";
+      },
+      gh_read: async (_, attrs) => {
+        if (!ghConfig.perms.read) return "Permission denied: Enable 'Read repos & files' in GitHub settings.";
+        const repo = resolveRepo(attrs.repo);
+        if (!repo || !attrs.path) return "Error: Both repo='owner/repo' and path='file' are required.";
+        const file = await ghFetch(`/repos/${repo}/contents/${attrs.path}`);
+        const decoded = fromB64(file.content);
+        vfs[attrs.path] = decoded; // Also cache into local workspace
+        return `Fetched ${repo}/${attrs.path} (${decoded.length} bytes):\n\n${decoded}`;
+      },
+      gh_push: async (content, attrs) => {
+        if (!ghConfig.perms.write) return "Permission denied: Enable 'Create & edit repo files' in GitHub settings.";
+        const repo = resolveRepo(attrs.repo);
+        const path = attrs.path;
+        const msg = attrs.msg || `Update ${path} via Browsaro`;
+        if (!repo || !path) return "Error: Both repo='owner/repo' and path='file' are required.";
+
+        if (ghConfig.perms.confirm && !confirm(`Allow Browsaro to push "${path}" to ${repo}?\n\nCommit: ${msg}`)) {
+          return "Action cancelled by user.";
+        }
+
+        // Check if file exists to get its SHA for updating
+        let sha;
+        try {
+          const existing = await ghFetch(`/repos/${repo}/contents/${path}`);
+          sha = existing.sha;
+        } catch (_) { /* New file */ }
+
+        const res = await ghFetch(`/repos/${repo}/contents/${path}`, {
+          method: "PUT",
+          body: JSON.stringify({ message: msg, content: toB64(content), ...(sha ? { sha } : {}) })
+        });
+        vfs[path] = content;
+        return `Pushed ${repo}/${path} (commit ${res.commit.sha.slice(0, 7)}): ${msg}`;
+      },
+      gh_delete: async (_, attrs) => {
+        if (!ghConfig.perms.delete) return "Permission denied: Enable 'Delete repo files' in GitHub settings.";
+        const repo = resolveRepo(attrs.repo);
+        const path = attrs.path;
+        const msg = attrs.msg || `Delete ${path} via Browsaro`;
+        if (!repo || !path) return "Error: Both repo='owner/repo' and path='file' are required.";
+
+        if (ghConfig.perms.confirm && !confirm(`Allow Browsaro to DELETE "${path}" from ${repo}?`)) {
+          return "Delete cancelled by user.";
+        }
+
+        const existing = await ghFetch(`/repos/${repo}/contents/${path}`);
+        await ghFetch(`/repos/${repo}/contents/${path}`, {
+          method: "DELETE",
+          body: JSON.stringify({ message: msg, sha: existing.sha })
+        });
+        return `Deleted ${repo}/${path}`;
+      },
+      gh_create_repo: async (desc, attrs) => {
+        if (!ghConfig.perms.createRepo) return "Permission denied: Enable 'Create new repositories' in GitHub settings.";
+        const name = attrs.name;
+        if (!name) return "Error: Repository name attribute is required.";
+        const isPrivate = attrs.private === "true";
+
+        if (ghConfig.perms.confirm && !confirm(`Allow Browsaro to create a new ${isPrivate ? "private" : "public"} repo named "${name}"?`)) {
+          return "Repo creation cancelled by user.";
+        }
+
+        const repo = await ghFetch("/user/repos", {
+          method: "POST",
+          body: JSON.stringify({ name, description: desc || "", private: isPrivate, auto_init: true })
+        });
+        return `Created repository: ${repo.html_url}`;
+      },
+
+      calc: (arg) => {
+        const sanitized = arg.replace(/[^0-9+\-*/().%\s]/g, "");
+        return String(Function(`"use strict"; return (${sanitized})`)());
+      },
+      time: () => new Date().toLocaleString(),
+      theme: (arg) => {
+        const t = arg.trim().toLowerCase();
+        document.body.className = ["mint", "sunset", "midnight"].includes(t) ? t : "";
+        return `Theme set to ${t || "blue"}`;
+      }
+    };
+
+    // GitHub Drawer handlers
+    openGithubBtn.onclick = () => githubDrawer.classList.add("open");
+    document.getElementById("closeGithub").onclick = () => githubDrawer.classList.remove("open");
+
+    document.getElementById("saveGithubBtn").onclick = async () => {
+      const statusBox = document.getElementById("ghVerifyStatus");
+      ghConfig.token = document.getElementById("ghTokenInput").value.trim();
+      ghConfig.defaultRepo = document.getElementById("ghDefaultRepo").value.trim();
+      ghConfig.perms = {
+        read: document.getElementById("permRead").checked,
+        write: document.getElementById("permWrite").checked,
+        createRepo: document.getElementById("permCreateRepo").checked,
+        delete: document.getElementById("permDelete").checked,
+        confirm: document.getElementById("permConfirm").checked
+      };
+
+      if (!ghConfig.token) {
+        ghConfig.user = "";
+        saveGhConfig();
+        messages[0].content = buildSystemPrompt();
+        statusBox.textContent = "Token cleared.";
+        return;
+      }
+
+      statusBox.textContent = "Verifying token with GitHub...";
+      try {
+        const me = await ghFetch("/user");
+        ghConfig.user = me.login;
+        saveGhConfig();
+        messages[0].content = buildSystemPrompt();
+        statusBox.textContent = `Connected as @${me.login}! Permissions updated.`;
+      } catch (err) {
+        statusBox.textContent = `Verification failed: ${err.message}`;
+      }
+    };
+
+    document.getElementById("clearGithubBtn").onclick = () => {
+      ghConfig.token = "";
+      ghConfig.user = "";
+      document.getElementById("ghTokenInput").value = "";
+      saveGhConfig();
+      messages[0].content = buildSystemPrompt();
+      document.getElementById("ghVerifyStatus").textContent = "Disconnected from GitHub.";
+    };
+
+    // Skills Drawer handlers
+    function renderSkillsList() {
+      skillListEl.innerHTML = "";
+      for (const [id, s] of Object.entries(skills)) {
+        const item = document.createElement("div");
+        item.className = "skill-item";
+        item.innerHTML = `<div><strong>${id}</strong><small>${s.desc}</small></div><button class="pill-btn" type="button">Delete</button>`;
+        item.querySelector("button").onclick = () => {
+          delete skills[id];
+          delete vfs[`skills/${id}.md`];
+          syncSkillsToVFS();
+          messages[0].content = buildSystemPrompt();
+          renderSkillsList();
+        };
+        skillListEl.appendChild(item);
+      }
+    }
+
+    openSkillsBtn.onclick = () => { renderSkillsList(); skillsDrawer.classList.add("open"); };
+    document.getElementById("closeSkills").onclick = () => skillsDrawer.classList.remove("open");
+    document.getElementById("saveSkillBtn").onclick = () => {
+      const id = document.getElementById("newSkillName").value.trim().toLowerCase().replace(/\s+/g, "-");
+      const desc = document.getElementById("newSkillDesc").value.trim();
+      const body = document.getElementById("newSkillBody").value.trim();
+      if (!id || !desc || !body) return;
+
+      skills[id] = { desc, body };
+      syncSkillsToVFS();
+      messages[0].content = buildSystemPrompt();
+      document.getElementById("newSkillName").value = "";
+      document.getElementById("newSkillDesc").value = "";
+      document.getElementById("newSkillBody").value = "";
+      renderSkillsList();
+    };
 
     function addBubble(role, text) {
       const div = document.createElement("div");
@@ -67,20 +559,114 @@
       return div;
     }
 
-    if (!navigator.gpu) {
-      statusEl.textContent = "WebGPU isn't supported in this browser. Try Chrome or Edge on desktop/Android.";
-      throw new Error("No WebGPU");
+    function addTerminalCard(title, badge, output) {
+      const card = document.createElement("div");
+      card.className = "term-card";
+      card.innerHTML = `<div class="term-head"><span>${title}</span><span>${badge}</span></div><pre class="term-body"></pre>`;
+      card.querySelector(".term-body").textContent = output;
+      chatEl.appendChild(card);
+      chatEl.scrollTop = chatEl.scrollHeight;
     }
 
-    const engine = await webllm.CreateMLCEngine(MODEL_ID, {
-      initProgressCallback: (report) => {
-        statusEl.textContent = report.text;
-      }
-    });
+    function setControls(enabled) {
+      promptEl.disabled = !enabled;
+      sendBtn.disabled = !enabled;
+      modelSelect.disabled = !enabled;
+    }
 
-    statusEl.textContent = `Ready • Running locally on your GPU (${MODEL_ID})`;
-    promptEl.disabled = false;
-    sendBtn.disabled = false;
+    async function loadModel(modelId) {
+      setControls(false);
+      statusEl.textContent = `Loading ${modelId}...`;
+      if (!engine) {
+        engine = await webllm.CreateMLCEngine(modelId, {
+          appConfig: browsaroAppConfig,
+          initProgressCallback: (r) => { statusEl.textContent = r.text; }
+        });
+      } else {
+        await engine.reload(modelId);
+      }
+      statusEl.textContent = `Ready • Local WebGPU (${modelId})`;
+      setControls(true);
+      promptEl.focus();
+    }
+
+    function parseAttrs(attrString) {
+      const attrs = {};
+      const regex = /(\w+)="([^"]*)"/g;
+      let m;
+      while ((m = regex.exec(attrString)) !== null) attrs[m[1]] = m[2];
+      return attrs;
+    }
+
+    async function generateReply(depth = 0) {
+      if (depth > 6) return;
+
+      const aiBubble = addBubble("ai", "...");
+      let reply = "";
+
+      const chunks = await engine.chat.completions.create({
+        messages,
+        stream: true,
+        temperature: 0.3,
+      });
+
+      for await (const chunk of chunks) {
+        reply += chunk.choices[0]?.delta?.content || "";
+        const visible = reply.replace(/<cmd[\s\S]*?<\/cmd>/g, "").trim();
+        aiBubble.textContent = visible || "Running tool...";
+        chatEl.scrollTop = chatEl.scrollHeight;
+      }
+
+      const match = reply.match(/<cmd\s+([^>]+)>([\s\S]*?)<\/cmd>/i);
+      if (match) {
+        aiBubble.remove();
+        const attrs = parseAttrs(match[1]);
+        const cmdName = (attrs.name || "").toLowerCase();
+        const cmdBody = match[2].trim();
+
+        let result;
+        try {
+          result = commands[cmdName]
+            ? await commands[cmdName](cmdBody, attrs)
+            : `Unknown command: ${cmdName}`;
+        } catch (err) {
+          result = `Error: ${err.message}`;
+        }
+
+        const headerTitle =
+          cmdName === "skill" ? `SKILL LOADED: ${cmdBody}` :
+          cmdName === "gh_push" ? `GITHUB PUSH → ${resolveRepo(attrs.repo)}/${attrs.path}` :
+          cmdName === "gh_read" ? `GITHUB READ ← ${resolveRepo(attrs.repo)}/${attrs.path}` :
+          cmdName === "gh_repos" ? `GITHUB REPOS` :
+          cmdName === "write" ? `WRITE ${attrs.path || "file"}` :
+          cmdName === "exec" ? `$ ${cmdBody}` :
+          cmdName === "run_js" ? `JS SANDBOX` : `CMD: ${cmdName}`;
+
+        const badge =
+          cmdName.startsWith("gh_") ? "GITHUB API" :
+          cmdName === "skill" ? "SKILL.MD" :
+          cmdName === "exec" ? "SIMULATED SHELL" : "LOCAL SANDBOX";
+
+        addTerminalCard(headerTitle, badge, cmdName === "write" ? `${result}\n\n${cmdBody}` : result);
+
+        messages.push({ role: "assistant", content: reply });
+        messages.push({ role: "user", content: `[COMMAND_RESULT for ${cmdName}]:\n${result}` });
+
+        await generateReply(depth + 1);
+        return;
+      }
+
+      aiBubble.textContent = reply;
+      messages.push({ role: "assistant", content: reply });
+    }
+
+    if (!navigator.gpu) {
+      statusEl.textContent = "WebGPU is not supported in this browser.";
+      throw new Error("WebGPU unsupported");
+    }
+
+    await loadModel(modelSelect.value);
+    modelSelect.addEventListener("change", () => loadModel(modelSelect.value));
 
     document.getElementById("form").addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -88,29 +674,13 @@
       if (!text) return;
 
       promptEl.value = "";
-      promptEl.disabled = true;
-      sendBtn.disabled = true;
+      setControls(false);
 
       addBubble("user", text);
       messages.push({ role: "user", content: text });
-      const aiBubble = addBubble("ai", "...");
 
-      let reply = "";
-      const chunks = await engine.chat.completions.create({
-        messages,
-        stream: true,
-        temperature: 0.7,
-      });
-
-      for await (const chunk of chunks) {
-        reply += chunk.choices[0]?.delta?.content || "";
-        aiBubble.textContent = reply;
-        chatEl.scrollTop = chatEl.scrollHeight;
-      }
-
-      messages.push({ role: "assistant", content: reply });
-      promptEl.disabled = false;
-      sendBtn.disabled = false;
+      await generateReply();
+      setControls(true);
       promptEl.focus();
     });
   </script>
